@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using NAudio.Wave;
 
 namespace KeyboardPiano
@@ -103,6 +104,14 @@ namespace KeyboardPiano
                 buffer[bufferCount++] = byte2;
             }
             _bufferedWaveProvider.AddSamples(buffer, 0, buffer.Length);
+        }
+
+        public void Reset()
+        {
+            _bufferCount = 0;
+            _bufferedWaveProvider.ClearBuffer();
+            // Note this can decrease performance because of the garbage collection, optimize in need
+            _buffer = new byte[_buffer.Length];
         }
 
         private static void BytesFromShort(short number, out byte byte1, out byte byte2)
