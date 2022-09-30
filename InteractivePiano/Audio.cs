@@ -11,10 +11,21 @@ namespace KeyboardPiano
     public class Audio : IDisposable
     {
         private static Audio _instance;
-        private static readonly Object padlock = new Object();
-        private WaveOutEvent _waveOut;  //audio output in separate thread
+        private static readonly Object Padlock = new Object();
+        public static Audio Instance
+        {
+            get
+            {
+                lock (Padlock)
+                {
+                    return _instance ??= new Audio();
+                }
+            }
+        }
+
+        private WaveOutEvent _waveOut; //audio output in separate thread
         private WaveFormat _waveFormat;
-        private BufferedWaveProvider _bufferedWaveProvider;  //used for streaming audio
+        private BufferedWaveProvider _bufferedWaveProvider; //used for streaming audio
 
         private int _bufferCount = 0;
         private byte[] _buffer;
@@ -37,17 +48,7 @@ namespace KeyboardPiano
             _waveOut.Init(_bufferedWaveProvider);
             _waveOut.Play();
         }
-        
-        public static Audio Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    return _instance ??= new Audio();
-                }
-            }
-        }
+
 
         /// <summary>
         /// Used to play a double representing an audio sample. The double will be added to the buffer
@@ -67,7 +68,6 @@ namespace KeyboardPiano
                 _bufferCount = 0;
                 _bufferedWaveProvider.AddSamples(_buffer, 0, _buffer.Length);
             }
-
         }
 
         /// <summary>
@@ -90,12 +90,13 @@ namespace KeyboardPiano
         public void Play(double[] data)
         {
             short[] samples = new short[data.Length];
-            for(int i=0; i < data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 var sample = ConvertToShort(data[i]);
                 samples[i] = sample;
             }
-            byte[] buffer = new byte[samples.Length*2]; //Twice the length since 2 bytes per short
+
+            byte[] buffer = new byte[samples.Length * 2]; //Twice the length since 2 bytes per short
             long bufferCount = 0;
             foreach (var sample in samples)
             {
@@ -103,6 +104,7 @@ namespace KeyboardPiano
                 buffer[bufferCount++] = byte1;
                 buffer[bufferCount++] = byte2;
             }
+
             _bufferedWaveProvider.AddSamples(buffer, 0, buffer.Length);
         }
 
@@ -131,10 +133,12 @@ namespace KeyboardPiano
             {
                 input = -1.0;
             }
+
             if (input > +1.0)
             {
                 input = +1.0;
             }
+
             short s = (short)(short.MaxValue * input);
             return s;
         }
@@ -154,7 +158,8 @@ namespace KeyboardPiano
                     var sample = ConvertToShort(data[i]);
                     samples[i] = sample;
                 }
-                waveWriter.WriteSamples(samples,0, samples.Length);
+
+                waveWriter.WriteSamples(samples, 0, samples.Length);
             }
         }
 
@@ -162,7 +167,7 @@ namespace KeyboardPiano
         {
             _waveOut.Stop();
             _waveOut.Dispose();
-           _bufferedWaveProvider.ClearBuffer();
+            _bufferedWaveProvider.ClearBuffer();
         }
     }
 }
