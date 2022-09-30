@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using NAudio.Wave;
 
 namespace KeyboardPiano
@@ -8,6 +9,8 @@ namespace KeyboardPiano
     /// </summary>
     public class Audio
     {
+        private static Audio _instance;
+        private static readonly Object padlock = new Object();
         private WaveOutEvent _waveOut;  //audio output in separate thread
         private WaveFormat _waveFormat;
         private BufferedWaveProvider _bufferedWaveProvider;  //used for streaming audio
@@ -20,7 +23,7 @@ namespace KeyboardPiano
         /// </summary>
         /// <param name="bufferSize">Length of buffer held in this class, default is 4096</param>
         /// <param name="samplingRate">Audio sampling rate,, default value is 44100</param>
-        public Audio(int bufferSize = 4096 * 16, int samplingRate = 44100)
+        private Audio(int bufferSize = 4096 * 16, int samplingRate = 44100)
         {
             _waveOut = new WaveOutEvent();
             _waveFormat = new WaveFormat(samplingRate, 16, 1);
@@ -32,6 +35,17 @@ namespace KeyboardPiano
 
             _waveOut.Init(_bufferedWaveProvider);
             _waveOut.Play();
+        }
+        
+        public static Audio Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    return _instance ??= new Audio();
+                }
+            }
         }
 
         /// <summary>
