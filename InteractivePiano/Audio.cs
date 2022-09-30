@@ -8,7 +8,7 @@ namespace KeyboardPiano
     /// <summary>
     /// This class is used to play a stream of doubles that represent audio samples
     /// </summary>
-    public class Audio
+    public class Audio : IDisposable
     {
         private static Audio _instance;
         private static readonly Object padlock = new Object();
@@ -156,6 +156,13 @@ namespace KeyboardPiano
                 }
                 waveWriter.WriteSamples(samples,0, samples.Length);
             }
+        }
+
+        public void Dispose()
+        {
+            _waveOut.Stop();
+            _waveOut.Dispose();
+           _bufferedWaveProvider.ClearBuffer();
         }
     }
 }
