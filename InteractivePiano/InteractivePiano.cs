@@ -26,7 +26,7 @@ namespace InteractivePiano
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             _pressedKeys = new List<Keys>();
-            var piano = new Piano(Keys, SampleRate);
+            var piano = new Piano(Keys.Length, SampleRate);
             _audio = new PianoAudio(piano, SampleRate);
             _keysEvents = new KeysEvents();
             _keysEvents.KeyPressed += OnKeyPressed;
