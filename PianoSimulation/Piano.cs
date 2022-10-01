@@ -8,9 +8,10 @@ namespace PianoSimulation
     {
         private readonly double _decay;
         private List<IMusicalString> _pianoKeys = new List<IMusicalString>();
+        public IMusicalString[] _pressedKeys;
         public string Keys { get; }
         
-        public Piano(string keys = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ", int samplingRate = 44100, double decay = 0.996)
+        public Piano(string keys, int samplingRate, double decay = 0.996)
         {
             Keys = keys;
             _decay = decay;
@@ -20,21 +21,37 @@ namespace PianoSimulation
                 var musicalString = new PianoWire(noteFrequency, samplingRate);
                 _pianoKeys.Add(musicalString);
             }
+
+            _pressedKeys = new IMusicalString[_pianoKeys.Capacity];
         }
             
         public void StrikeKey(char key)
         {
             var keyIndex = Keys.IndexOf(key);
-            if (keyIndex == -1) throw new PianoKeyDoesNotExistsException($"{key} key does not exist");
-            _pianoKeys[keyIndex].Strike();
+            if (keyIndex == -1) return;
+            _pressedKeys[keyIndex] = _pianoKeys[keyIndex];
+            _pressedKeys[keyIndex].Strike();
+        }
+        
+        public void RemoveKey(char key)
+        {
+            var keyIndex = Keys.IndexOf(key);
+            if (keyIndex == -1)
+            {
+                return;
+            }
+            _pressedKeys[keyIndex] = null;
         }
 
         public double Play()
         {
             double sampleSum = 0;
-            foreach (var pianoKey in _pianoKeys)
+            foreach (var pianoKey in _pressedKeys)
             {
-                sampleSum += pianoKey.Sample(_decay);
+                if (pianoKey != null)
+                {
+                    sampleSum += pianoKey.Sample(_decay);
+                }
             }
 
             return sampleSum;
