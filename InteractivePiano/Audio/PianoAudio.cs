@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using NAudio.Wave;
 using PianoSimulation;
 
@@ -14,7 +12,7 @@ namespace InteractivePiano.Audio
 
         public PianoAudio(Piano piano, int sampleRate)
         {
-            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate * 3, 1);
             _waveOut = new WaveOut();
             _waveOut.Init(this);
             _piano = piano;
@@ -33,15 +31,8 @@ namespace InteractivePiano.Audio
 
         public int Read(float[] buffer, int offset, int count)
         {
-            if (!_piano.PressedKeys.Any())
+            for (var i = offset; i < count; i++)
             {
-                Array.Clear(buffer, offset, count);
-                return count;
-            }
-
-            for (int i = offset; i < count; i++)
-            {
-                // var playLength = _sampleRate * 4;
                 buffer[i] = (float)_piano.Play();
             }
             return count;

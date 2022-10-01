@@ -6,54 +6,39 @@ namespace PianoSimulation
 {
     public class Piano : IPiano
     {
-        private readonly double _decay;
-        private readonly List<IMusicalString> _pianoKeys = new List<IMusicalString>();
-        public IMusicalString[] PressedKeys { get; }
+        private readonly List<KeyControl> _pianoKeys = new List<KeyControl>();
         public string Keys { get; }
-        
-        public Piano(string keys, int samplingRate, double decay = 0.996)
+
+        public Piano(string keys, int samplingRate, double decay = 0.996, double releaseDecay = 0.9)
         {
             Keys = keys;
-            _decay = decay;
             for (int i = 0; i < keys.Length; i++)
             {
                 var noteFrequency = Math.Pow(2, (i - 24) / 12d) * 440;
                 var musicalString = new PianoWire(noteFrequency, samplingRate);
-                _pianoKeys.Add(musicalString);
+                _pianoKeys.Add(new KeyControl(musicalString, decay, releaseDecay));
             }
-
-            PressedKeys = new IMusicalString[_pianoKeys.Capacity];
         }
-            
+
         public int StrikeKey(char key)
         {
             var keyIndex = Keys.IndexOf(key);
             if (keyIndex == -1) return -1;
-            PressedKeys[keyIndex] = _pianoKeys[keyIndex];
-            PressedKeys[keyIndex].Strike();
+            _pianoKeys[keyIndex].Strike();
             return 0;
         }
-        
+
         public int RemoveKey(char key)
         {
             var keyIndex = Keys.IndexOf(key);
             if (keyIndex == -1) return -1;
-            PressedKeys[keyIndex] = null;
+            _pianoKeys[keyIndex].ReleaseKey();
             return 0;
         }
 
         public double Play()
         {
-            double sampleSum = 0;
-            foreach (var pianoKey in PressedKeys)
-            {
-                if (pianoKey != null)
-                {
-                    sampleSum += pianoKey.Sample(_decay);
-                }
-            }
-
-            return sampleSum;
+            return _pianoKeys.Sum(key => key.Sample());
         }
 
         public List<string> GetPianoKeys()
