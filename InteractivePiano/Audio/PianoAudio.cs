@@ -26,7 +26,7 @@ namespace InteractivePiano.Audio
 
         public void RemoveNote(char key)
         {
-            _piano.RemoveKey(key);
+            _piano.RaiseKey(key);
         }
 
         public int Read(float[] buffer, int offset, int count)
