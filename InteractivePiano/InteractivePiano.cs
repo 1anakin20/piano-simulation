@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using KeyboardPiano;
+using InteractivePiano.Audio;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,20 +13,22 @@ namespace InteractivePiano
         private const string Keys = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Audio _audio;
+        private PianoAudio _audio;
         private Piano _piano;
         private const int SampleRate = 44100;
         private const int Repetitions = 3;
         private const int playLength = SampleRate * Repetitions;
         private readonly Object PlayLock = new Object();
+        private List<Keys> _keysPressed;
 
         public InteractivePiano()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            _audio = Audio.Instance;
-            _piano = new Piano(Keys);
+            _keysPressed = new List<Keys>();
+            _piano = new Piano(Keys, SampleRate);
+            _audio = new PianoAudio(_piano, SampleRate);
         }
 
         protected override void Initialize()
@@ -52,21 +52,16 @@ namespace InteractivePiano
                 Exit();
 
             var keyboard = Keyboard.GetState();
-
-            var pressedKeys = new List<char>();
-            foreach (var key in keyboard.GetPressedKeys())
+            foreach (var key in Enum.GetValues(typeof(Keys)))
             {
-                var charKey = key.ToString().ToLower()[0];
-                if (Keys.Contains(charKey))
+                if (keyboard.IsKeyDown((Keys)key))
                 {
-                    pressedKeys.Add(charKey);
+                    _audio.AddNote(key.ToString()!.ToLower()[0]);
                 }
-            }
-
-            if (pressedKeys.Count > 0)
-            {
-                var keysHandler = new Thread(() => HandleKeys(pressedKeys));
-                keysHandler.Start();
+                else
+                {
+                    _audio.RemoveNote(key.ToString()!.ToLower()[0]);
+                }
             }
 
 
@@ -82,22 +77,6 @@ namespace InteractivePiano
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
-        }
-
-        private void HandleKeys(IEnumerable<char> keys)
-        {
-            lock (PlayLock)
-            {
-                foreach (var key in keys)
-                {
-                    _piano.StrikeKey(key);
-                }
-
-                for (var i = 0; i < playLength; i++)
-                {
-                    _audio.Play(_piano.Play());
-                }
-            }
         }
     }
 }
