@@ -1,39 +1,52 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace PianoSimulation
 {
     public class Piano : IPiano
     {
-        private readonly List<KeyControl> _pianoKeys = new List<KeyControl>();
-        public string Keys { get; }
+        private readonly KeyControl[] _pianoKeys;
 
-        public Piano(string keys, int samplingRate, double decay = 0.996, double releaseDecay = 0.9)
+        public Piano(int numberOfKeys, int samplingRate, double decay = 0.996, double releaseDecay = 0.9,
+            double startingFrequency = 440)
         {
-            Keys = keys;
-            for (int i = 0; i < keys.Length; i++)
+            _pianoKeys = new KeyControl[numberOfKeys];
+            for (int i = 0; i < numberOfKeys; i++)
             {
-                var noteFrequency = Math.Pow(2, (i - 24) / 12d) * 440;
+                var noteFrequency = Math.Pow(2, (i - 24) / 12d) * startingFrequency;
                 var musicalString = new PianoWire(noteFrequency, samplingRate);
-                _pianoKeys.Add(new KeyControl(musicalString, decay, releaseDecay));
+                _pianoKeys[i] = new KeyControl(musicalString, decay, releaseDecay);
             }
         }
 
-        public int StrikeKey(char key)
+        public int StrikeKey(int key)
         {
-            var keyIndex = Keys.IndexOf(key);
-            if (keyIndex == -1) return -1;
-            _pianoKeys[keyIndex].Strike();
-            return 0;
+            if (IsValidKey(key))
+            {
+                _pianoKeys[key].Strike();
+                return 0;
+            }
+
+            return -1;
         }
 
-        public int RemoveKey(char key)
+        public int RaiseKey(int key)
         {
-            var keyIndex = Keys.IndexOf(key);
-            if (keyIndex == -1) return -1;
-            _pianoKeys[keyIndex].ReleaseKey();
-            return 0;
+            if (IsValidKey(key))
+            {
+                _pianoKeys[key].ReleaseKey();
+                return 0;
+            }
+
+            return -1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsValidKey(int key)
+        {
+            return key >= 0 && key < _pianoKeys.Length;
         }
 
         public double Play()

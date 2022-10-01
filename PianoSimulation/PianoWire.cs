@@ -6,7 +6,6 @@ namespace PianoSimulation
     {
         
         private const double MaxAmplitude = 0.5; 
-        private const double MinAmplitude = -0.5;
         private readonly CircularArray _frequenciesBuffer;
         public double NoteFrequency { get; }
         public int NumberOfSamples { get; }

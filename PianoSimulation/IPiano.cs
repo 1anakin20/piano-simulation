@@ -8,14 +8,14 @@ namespace PianoSimulation
         /// Strikes the piano key (wire) corresponding to the specified character
         /// </summary>
         /// <param name="key">The charcter associated with a note</param>
-        public int StrikeKey(char key);
+        public int StrikeKey(int key);
 
         /// <summary>
         /// Raises the piano key (wire) corresponding to the specified character
         /// </summary>
         /// <param name="key">The character associated with the key</param>
         /// <returns></returns>
-        public int RemoveKey(char key);
+        public int RaiseKey(int key);
 
         /// <summary>
         /// Plays all of the vibrating keys (wires) at the current time step.
@@ -28,11 +28,5 @@ namespace PianoSimulation
         /// </summary>
         /// <returns></returns>
         public List<string> GetPianoKeys();
-
-        /// <summary>
-        /// Lists all the characters associated with a key
-        /// </summary>
-        /// <value></value>
-        public string Keys {get;}
     }
 }

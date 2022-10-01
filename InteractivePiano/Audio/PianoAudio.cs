@@ -19,14 +19,14 @@ namespace InteractivePiano.Audio
             _waveOut.Play();
         }
 
-        public void AddNote(char key)
+        public void AddNote(int key)
         {
             _piano.StrikeKey(key);
         }
 
-        public void RemoveNote(char key)
+        public void RemoveNote(int key)
         {
-            _piano.RemoveKey(key);
+            _piano.RaiseKey(key);
         }
 
         public int Read(float[] buffer, int offset, int count)
@@ -35,6 +35,7 @@ namespace InteractivePiano.Audio
             {
                 buffer[i] = (float)_piano.Play();
             }
+
             return count;
         }
 
