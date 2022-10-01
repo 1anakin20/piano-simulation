@@ -9,12 +9,13 @@ namespace PianoSimulation
     {
         private readonly KeyControl[] _pianoKeys;
 
-        public Piano(int numberOfKeys, int samplingRate, double decay = 0.996, double releaseDecay = 0.9)
+        public Piano(int numberOfKeys, int samplingRate, double decay = 0.996, double releaseDecay = 0.9,
+            double startingFrequency = 440)
         {
             _pianoKeys = new KeyControl[numberOfKeys];
             for (int i = 0; i < numberOfKeys; i++)
             {
-                var noteFrequency = Math.Pow(2, (i - 24) / 12d) * 440;
+                var noteFrequency = Math.Pow(2, (i - 24) / 12d) * startingFrequency;
                 var musicalString = new PianoWire(noteFrequency, samplingRate);
                 _pianoKeys[i] = new KeyControl(musicalString, decay, releaseDecay);
             }
@@ -38,9 +39,10 @@ namespace PianoSimulation
                 _pianoKeys[key].ReleaseKey();
                 return 0;
             }
+
             return -1;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsValidKey(int key)
         {

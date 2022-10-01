@@ -1,4 +1,6 @@
-﻿namespace InteractivePiano.PianoInput
+﻿using InteractivePiano.Game;
+
+namespace InteractivePiano.PianoInput
 {
     public class KeyboardPiano : PianoInput
     {

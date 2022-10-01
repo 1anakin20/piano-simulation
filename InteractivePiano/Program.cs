@@ -7,7 +7,7 @@ namespace InteractivePiano
         [STAThread]
         static void Main()
         {
-            using (var game = new InteractivePiano())
+            using (var game = new Game.InteractivePiano())
                 game.Run();
         }
     }
