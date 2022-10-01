@@ -7,8 +7,8 @@ namespace PianoSimulation
     public class Piano : IPiano
     {
         private readonly double _decay;
-        private List<IMusicalString> _pianoKeys = new List<IMusicalString>();
-        public IMusicalString[] _pressedKeys;
+        private readonly List<IMusicalString> _pianoKeys = new List<IMusicalString>();
+        public IMusicalString[] PressedKeys { get; }
         public string Keys { get; }
         
         public Piano(string keys, int samplingRate, double decay = 0.996)
@@ -22,31 +22,30 @@ namespace PianoSimulation
                 _pianoKeys.Add(musicalString);
             }
 
-            _pressedKeys = new IMusicalString[_pianoKeys.Capacity];
+            PressedKeys = new IMusicalString[_pianoKeys.Capacity];
         }
             
-        public void StrikeKey(char key)
+        public int StrikeKey(char key)
         {
             var keyIndex = Keys.IndexOf(key);
-            if (keyIndex == -1) return;
-            _pressedKeys[keyIndex] = _pianoKeys[keyIndex];
-            _pressedKeys[keyIndex].Strike();
+            if (keyIndex == -1) return -1;
+            PressedKeys[keyIndex] = _pianoKeys[keyIndex];
+            PressedKeys[keyIndex].Strike();
+            return 0;
         }
         
-        public void RemoveKey(char key)
+        public int RemoveKey(char key)
         {
             var keyIndex = Keys.IndexOf(key);
-            if (keyIndex == -1)
-            {
-                return;
-            }
-            _pressedKeys[keyIndex] = null;
+            if (keyIndex == -1) return -1;
+            PressedKeys[keyIndex] = null;
+            return 0;
         }
 
         public double Play()
         {
             double sampleSum = 0;
-            foreach (var pianoKey in _pressedKeys)
+            foreach (var pianoKey in PressedKeys)
             {
                 if (pianoKey != null)
                 {

@@ -11,11 +11,9 @@ namespace InteractivePiano.Audio
         private readonly WaveOut _waveOut;
         public WaveFormat WaveFormat { get; }
         private readonly Piano _piano;
-        private List<char> _keysPressed;
 
         public PianoAudio(Piano piano, int sampleRate)
         {
-            _keysPressed = new List<char>();
             WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
             _waveOut = new WaveOut();
             _waveOut.Init(this);
@@ -25,19 +23,17 @@ namespace InteractivePiano.Audio
 
         public void AddNote(char key)
         {
-            _keysPressed.Add(key);
             _piano.StrikeKey(key);
         }
 
         public void RemoveNote(char key)
         {
-            _keysPressed.Remove(key);
             _piano.RemoveKey(key);
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            if (!_keysPressed.Any())
+            if (!_piano.PressedKeys.Any())
             {
                 Array.Clear(buffer, offset, count);
                 return count;
