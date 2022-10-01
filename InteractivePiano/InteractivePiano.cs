@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using InteractivePiano.Audio;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,6 +17,7 @@ namespace InteractivePiano
         private const int Repetitions = 3;
         private List<Keys> _pressedKeys;
         private readonly KeysEvents _keysEvents;
+        private readonly KeyboardPiano _keyboardPiano;
 
         public InteractivePiano()
         {
@@ -28,6 +27,7 @@ namespace InteractivePiano
             _pressedKeys = new List<Keys>();
             var piano = new Piano(Keys.Length, SampleRate);
             _audio = new PianoAudio(piano, SampleRate);
+            _keyboardPiano = new KeyboardPiano(_audio, Keys);
             _keysEvents = new KeysEvents();
             _keysEvents.KeyPressed += OnKeyPressed;
             _keysEvents.KeyReleased += OnKeyReleased;
@@ -52,7 +52,7 @@ namespace InteractivePiano
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
                 Exit();
-            
+
             _keysEvents.Update();
 
             // TODO: Add your update logic here
@@ -68,20 +68,20 @@ namespace InteractivePiano
 
             base.Draw(gameTime);
         }
-        
+
         private void OnKeyPressed(object sender, KeysEventArgs e)
         {
             foreach (var key in e.Keys)
-            { 
-                _audio.AddNote(char.ToLower((char) key));
+            {
+                _keyboardPiano.StrikeKey(char.ToLower((char)key));
             }
         }
-        
+
         private void OnKeyReleased(object sender, KeysEventArgs e)
         {
             foreach (var key in e.Keys)
             {
-                _audio.RemoveNote(char.ToLower((char) key));
+                _keyboardPiano.RaiseKey(char.ToLower((char)key));
             }
         }
     }
