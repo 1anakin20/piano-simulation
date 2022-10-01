@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using InteractivePiano.Audio;
+﻿using InteractivePiano.Audio;
+using InteractivePiano.PianoInput;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,22 +15,36 @@ namespace InteractivePiano
         private readonly PianoAudio _audio;
         private const int SampleRate = 44100;
         private const int Repetitions = 3;
-        private List<Keys> _pressedKeys;
-        private readonly KeysEvents _keysEvents;
-        private readonly KeyboardPiano _keyboardPiano;
+        private readonly KeyboardKeysEvents _keyboardKeysEvents;
+        private readonly PianoInput.PianoInput _pianoInput;
 
         public InteractivePiano()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            _pressedKeys = new List<Keys>();
             var piano = new Piano(Keys.Length, SampleRate);
             _audio = new PianoAudio(piano, SampleRate);
-            _keyboardPiano = new KeyboardPiano(_audio, Keys);
-            _keysEvents = new KeysEvents();
-            _keysEvents.KeyPressed += OnKeyPressed;
-            _keysEvents.KeyReleased += OnKeyReleased;
+            _keyboardKeysEvents = new KeyboardKeysEvents();
+            _pianoInput = new PianoInput.KeyboardPiano(Keys, _keyboardKeysEvents);
+            _pianoInput.PianoKeyPressed += OnPianoInputOnPianoInputKeyPressed;
+            _pianoInput.PianoKeyReleased += OnPianoInputOnPianoInputKeyReleased;
+        }
+
+        private void OnPianoInputOnPianoInputKeyReleased(object sender, PianoInputEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _audio.RemoveNote(key);
+            }
+        }
+
+        private void OnPianoInputOnPianoInputKeyPressed(object sender, PianoInputEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _audio.AddNote(key);
+            }
         }
 
         protected override void Initialize()
@@ -53,7 +67,11 @@ namespace InteractivePiano
                 Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
                 Exit();
 
-            _keysEvents.Update();
+            // It is only necessary to get the keyboard inputs if we are playing the piano with a computer keyboard
+            if (_pianoInput is PianoInput.KeyboardPiano)
+            {
+                _keyboardKeysEvents.Update();
+            }
 
             // TODO: Add your update logic here
 
@@ -67,22 +85,6 @@ namespace InteractivePiano
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
-        }
-
-        private void OnKeyPressed(object sender, KeysEventArgs e)
-        {
-            foreach (var key in e.Keys)
-            {
-                _keyboardPiano.StrikeKey(char.ToLower((char)key));
-            }
-        }
-
-        private void OnKeyReleased(object sender, KeysEventArgs e)
-        {
-            foreach (var key in e.Keys)
-            {
-                _keyboardPiano.RaiseKey(char.ToLower((char)key));
-            }
         }
     }
 }

@@ -5,10 +5,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace InteractivePiano
 {
-    public class KeysEvents
+    public class KeyboardKeysEvents
     {
-        public event KeyEventDelegate KeyPressed;
-        public event KeyEventDelegate KeyReleased;
+        public event KeyEventDelegate KeyboardKeysPressed;
+        public event KeyEventDelegate KeyboardKeysReleased;
         private List<Keys> _previousPressedKeys = new List<Keys>();
 
         public void Update()
@@ -24,8 +24,9 @@ namespace InteractivePiano
                     newPressedKeys.Add(key);
                 }
             }
+
             OnKeysPressed(new KeysEventArgs(newPressedKeys));
-            
+
             var releasedKeys = new List<Keys>();
             foreach (var key in _previousPressedKeys)
             {
@@ -34,28 +35,29 @@ namespace InteractivePiano
                     releasedKeys.Add(key);
                 }
             }
+
             OnKeysReleased(new KeysEventArgs(releasedKeys));
-            
+
             _previousPressedKeys = new List<Keys>(pressedKeys);
         }
 
         protected virtual void OnKeysPressed(KeysEventArgs args)
         {
-            KeyPressed?.Invoke(this, args);
+            KeyboardKeysPressed?.Invoke(this, args);
         }
-        
+
         protected virtual void OnKeysReleased(KeysEventArgs args)
         {
-            KeyReleased?.Invoke(this, args);
+            KeyboardKeysReleased?.Invoke(this, args);
         }
     }
 
     public delegate void KeyEventDelegate(object sender, KeysEventArgs args);
-    
+
     public class KeysEventArgs : EventArgs
     {
         public List<Keys> Keys { get; }
-        
+
         public KeysEventArgs(List<Keys> keys)
         {
             Keys = keys;
