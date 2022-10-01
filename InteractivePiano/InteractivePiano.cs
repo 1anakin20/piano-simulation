@@ -14,7 +14,6 @@ namespace InteractivePiano
         private SpriteBatch _spriteBatch;
         private readonly PianoAudio _audio;
         private const int SampleRate = 44100;
-        private const int Repetitions = 3;
         private readonly KeyboardKeysEvents _keyboardKeysEvents;
         private readonly PianoInput.PianoInput _pianoInput;
 
