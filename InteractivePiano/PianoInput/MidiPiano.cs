@@ -4,7 +4,7 @@ namespace InteractivePiano.PianoInput
 {
     public class MidiPiano : PianoInput
     {
-        private MidiIn _midiIn;
+        private readonly MidiIn _midiIn;
 
         public MidiPiano(int deviceNumber)
         {
@@ -18,12 +18,12 @@ namespace InteractivePiano.PianoInput
             if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOn)
             {
                 var noteOnEvent = (NoteEvent)e.MidiEvent;
-                OnPianoKeyPressed(new PianoInputEventArgs(new int[] { noteOnEvent.NoteNumber }));
+                OnPianoKeyPressed(new PianoInputEventArgs(new[] { noteOnEvent.NoteNumber }));
             }
             else if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOff)
             {
                 var noteOffEvent = (NoteEvent)e.MidiEvent;
-                OnPianoKeyReleased(new PianoInputEventArgs(new int[noteOffEvent.NoteNumber]));
+                OnPianoKeyReleased(new PianoInputEventArgs(new[] { noteOffEvent.NoteNumber }));
             }
         }
     }
