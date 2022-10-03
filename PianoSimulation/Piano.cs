@@ -54,11 +54,9 @@ namespace PianoSimulation
             double sum = 0;
             foreach (var key in _pianoKeys)
             {
-                if (key.IsPlaying)
-                {
-                    sum += key.Sample();
-                }
+                sum += key.Sample();
             }
+
             return sum;
         }
 

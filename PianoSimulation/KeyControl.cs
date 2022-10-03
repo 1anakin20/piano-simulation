@@ -1,4 +1,6 @@
-﻿namespace PianoSimulation
+﻿using System;
+
+namespace PianoSimulation
 {
     public class KeyControl
     {
@@ -6,31 +8,28 @@
         private readonly double _releaseDecay;
         private readonly IMusicalString _key;
         public bool IsPlaying { get; private set; }
-        private bool _isFading;
-        private const float TotalFadeCycles = 44100 * 5;
-        private int _fadeCycles;
+        public bool IsFading { get; private set; }
 
-        public KeyControl(PianoWire pianoWire, double decay = 0.996, double releaseDecay = 0.9)
+        public KeyControl(PianoWire pianoWire, double decay = 0.996, double releaseDecay = 0.96)
         {
             _key = pianoWire;
             _decay = decay;
             _releaseDecay = releaseDecay;
             IsPlaying = false;
-            _isFading = false;
-            _fadeCycles = 0;
+            IsFading = false;
         }
 
         public void Strike()
         {
             IsPlaying = true;
-            _isFading = false;
+            IsFading = false;
             _key.Strike();
         }
 
         public void ReleaseKey()
         {
             IsPlaying = false;
-            _isFading = true;
+            IsFading = true;
         }
 
         public double Sample()
@@ -40,15 +39,12 @@
                 return _key.Sample(_decay);
             }
 
-            if (_isFading)
+            if (IsFading)
             {
                 double sample = _key.Sample(_releaseDecay);
-                _fadeCycles++;
-                if (_fadeCycles >= TotalFadeCycles)
+                if (Math.Abs(sample) < 0.000001)
                 {
-                    _isFading = false;
-                    IsPlaying = false;
-                    _fadeCycles = 0;
+                    IsFading = false;
                 }
 
                 return sample;
