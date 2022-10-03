@@ -5,7 +5,7 @@
         private readonly double _decay;
         private readonly double _releaseDecay;
         private readonly IMusicalString _key;
-        private bool _isPlaying;
+        public bool IsPlaying { get; private set; }
         private bool _isFading;
         private const float TotalFadeCycles = 44100 * 5;
         private int _fadeCycles;
@@ -15,27 +15,27 @@
             _key = pianoWire;
             _decay = decay;
             _releaseDecay = releaseDecay;
-            _isPlaying = false;
+            IsPlaying = false;
             _isFading = false;
             _fadeCycles = 0;
         }
 
         public void Strike()
         {
-            _isPlaying = true;
+            IsPlaying = true;
             _isFading = false;
             _key.Strike();
         }
 
         public void ReleaseKey()
         {
-            _isPlaying = false;
+            IsPlaying = false;
             _isFading = true;
         }
 
         public double Sample()
         {
-            if (_isPlaying)
+            if (IsPlaying)
             {
                 return _key.Sample(_decay);
             }
@@ -47,7 +47,7 @@
                 if (_fadeCycles >= TotalFadeCycles)
                 {
                     _isFading = false;
-                    _isPlaying = false;
+                    IsPlaying = false;
                     _fadeCycles = 0;
                 }
 
