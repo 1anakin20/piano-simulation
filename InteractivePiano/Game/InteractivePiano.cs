@@ -173,6 +173,8 @@ namespace InteractivePiano.Game
                     midiDevicesCombo.Items.Add(new ListItem(deviceName));
                 }
 
+                midiDevicesCombo.SelectedIndex = 0;
+
                 var acceptButton = new TextButton
                 {
                     Text = "accept",
@@ -180,7 +182,7 @@ namespace InteractivePiano.Game
 
                 acceptButton.Click += (sender, args) =>
                 {
-                    InitialisePiano(88, 41.20);
+                    InitialisePiano(127, 8.18);
                     var selectedDevice = midiDevicesCombo.SelectedIndex ?? 0;
                     _pianoInput = new MidiPiano(selectedDevice);
                     _pianoInput.PianoKeyPressed += OnPianoInputOnPianoInputKeyPressed;
