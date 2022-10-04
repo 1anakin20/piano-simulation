@@ -22,7 +22,7 @@ namespace InteractivePiano.GameObject
             PianoKeyColor.White
         };
 
-        PianoKey[] _keys;
+        private readonly PianoKey[] _keys;
 
         public Piano(SpriteBatch spriteBatch, Texture2D whiteKeyTexture, Texture2D blackKeyTexture,
             Vector2 startingPosition, int numberKeys, int startingKey, Color pressedColor)

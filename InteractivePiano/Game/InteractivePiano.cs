@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using InteractivePiano.Audio;
 using InteractivePiano.Midi;
 using InteractivePiano.PianoInput;
@@ -23,6 +25,8 @@ namespace InteractivePiano.Game
         private GameState _gameState;
         private Desktop _desktop;
         private GameObject.Piano _virtualPiano;
+        private SpriteFont _font;
+        private readonly List<Keys> _pressedKeys;
 
         public InteractivePiano()
         {
@@ -30,6 +34,7 @@ namespace InteractivePiano.Game
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             _gameState = GameState.Menu;
+            _pressedKeys = new List<Keys>();
         }
 
         private void OnPianoInputOnPianoInputKeyReleased(object sender, PianoInputEventArgs args)
@@ -61,7 +66,6 @@ namespace InteractivePiano.Game
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             Window.AllowUserResizing = true;
             base.Initialize();
         }
@@ -69,11 +73,10 @@ namespace InteractivePiano.Game
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _font = Content.Load<SpriteFont>("font");
             MyraEnvironment.Game = this;
             _desktop = new Desktop();
             DrawMenu();
-
-            // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
@@ -108,6 +111,14 @@ namespace InteractivePiano.Game
             {
                 _spriteBatch.Begin();
                 _virtualPiano.DrawKeys();
+
+                var pressedKeysBuilder = new StringBuilder();
+                foreach (var key in _pressedKeys)
+                {
+                    pressedKeysBuilder.Append(key);
+                }
+
+                _spriteBatch.DrawString(_font, pressedKeysBuilder.ToString(), new Vector2(100, 100), Color.Black);
                 _spriteBatch.End();
             }
 
@@ -140,6 +151,8 @@ namespace InteractivePiano.Game
             {
                 InitialisePiano(Keys.Length, 440);
                 _keyboardKeysEvents = new KeyboardKeysEvents();
+                _keyboardKeysEvents.KeyboardKeysPressed += OnKeyboardKeysPressed;
+                _keyboardKeysEvents.KeyboardKeysReleased += OnKeyboardKeysReleased;
                 _pianoInput = new PianoInput.KeyboardPiano(Keys, _keyboardKeysEvents);
                 _pianoInput.PianoKeyPressed += OnPianoInputOnPianoInputKeyPressed;
                 _pianoInput.PianoKeyReleased += OnPianoInputOnPianoInputKeyReleased;
@@ -157,6 +170,22 @@ namespace InteractivePiano.Game
             midiButton.Click += (sender, args) => { ShowMidiMenu(); };
             grid.Widgets.Add(midiButton);
             _desktop.Root = grid;
+        }
+
+        private void OnKeyboardKeysReleased(object sender, KeysEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _pressedKeys.Remove(key);
+            }
+        }
+
+        private void OnKeyboardKeysPressed(object sender, KeysEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _pressedKeys.Add(key);
+            }
         }
 
         private void ShowMidiMenu()
