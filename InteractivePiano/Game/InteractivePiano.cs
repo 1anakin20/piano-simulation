@@ -22,13 +22,14 @@ namespace InteractivePiano.Game
         private PianoInput.PianoInput _pianoInput;
         private GameState _gameState;
         private Desktop _desktop;
+        private GameObject.Piano _virtualPiano;
 
         public InteractivePiano()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            _gameState = GameState.MENU;
+            _gameState = GameState.Menu;
         }
 
         private void OnPianoInputOnPianoInputKeyReleased(object sender, PianoInputEventArgs args)
@@ -36,6 +37,7 @@ namespace InteractivePiano.Game
             foreach (var key in args.Keys)
             {
                 _audio.RemoveNote(key);
+                _virtualPiano.ReleaseKey(key);
             }
         }
 
@@ -44,6 +46,7 @@ namespace InteractivePiano.Game
             foreach (var key in args.Keys)
             {
                 _audio.AddNote(key);
+                _virtualPiano.PressKey(key);
             }
         }
 
@@ -51,12 +54,15 @@ namespace InteractivePiano.Game
         {
             var piano = new Piano(keys, SampleRate, startingFrequency: startingFrequency);
             _audio = new PianoAudio(piano, SampleRate);
+            var blackKeyTexture = Content.Load<Texture2D>("black_key");
+            var whiteKeyTexture = Content.Load<Texture2D>("white_key");
+            _virtualPiano = new GameObject.Piano(_spriteBatch, whiteKeyTexture, blackKeyTexture, Vector2.Zero, keys, 0);
         }
 
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            Window.AllowUserResizing = true;
             base.Initialize();
         }
 
@@ -79,7 +85,7 @@ namespace InteractivePiano.Game
                 Exit();
             }
 
-            if (_gameState == GameState.PLAYING)
+            if (_gameState == GameState.Playing)
             {
                 // It is only necessary to get the keyboard inputs if we are playing the piano with a computer keyboard
                 if (_pianoInput is PianoInput.KeyboardPiano)
@@ -94,9 +100,15 @@ namespace InteractivePiano.Game
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            if (_gameState == GameState.MENU)
+            if (_gameState == GameState.Menu)
             {
                 _desktop.Render();
+            }
+            else
+            {
+                _spriteBatch.Begin();
+                _virtualPiano.DrawKeys();
+                _spriteBatch.End();
             }
 
             base.Draw(gameTime);
@@ -131,7 +143,7 @@ namespace InteractivePiano.Game
                 _pianoInput = new PianoInput.KeyboardPiano(Keys, _keyboardKeysEvents);
                 _pianoInput.PianoKeyPressed += OnPianoInputOnPianoInputKeyPressed;
                 _pianoInput.PianoKeyReleased += OnPianoInputOnPianoInputKeyReleased;
-                _gameState = GameState.PLAYING;
+                _gameState = GameState.Playing;
             };
             grid.Widgets.Add(keyboardButton);
 
@@ -187,7 +199,7 @@ namespace InteractivePiano.Game
                     _pianoInput = new MidiPiano(selectedDevice);
                     _pianoInput.PianoKeyPressed += OnPianoInputOnPianoInputKeyPressed;
                     _pianoInput.PianoKeyReleased += OnPianoInputOnPianoInputKeyReleased;
-                    _gameState = GameState.PLAYING;
+                    _gameState = GameState.Playing;
                 };
                 stack.Widgets.Add(acceptButton);
             }
