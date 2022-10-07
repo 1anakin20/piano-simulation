@@ -12,6 +12,10 @@ namespace InteractivePiano.Audio
 
         public PianoAudio(Piano piano, int sampleRate)
         {
+            if (sampleRate < 0) {
+                throw new ArgumentException("Sample rate can't be negative");
+            }
+
             WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate * 3, 1);
             _waveOut = new WaveOut();
             _waveOut.Init(this);
