@@ -39,6 +39,6 @@ namespace InteractivePiano.Audio
             return count;
         }
 
-        public void Dispose() => _waveOut.Dispose();
+        public void Dispose() => _waveOut?.Dispose();
     }
 }
