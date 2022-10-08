@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using InteractivePiano.Audio;
@@ -124,6 +123,8 @@ namespace InteractivePiano.Game
 
 
         #region menu
+
+        // The menu is done using the Myra UI library for MonoGame: https://github.com/rds1983/Myra
 
         /// <summary>
         /// Shows the menu to select the playing mode. Computer keyboard <seealso cref="KeyboardPiano"/> or midi <seealso cref="MidiPiano"/>
