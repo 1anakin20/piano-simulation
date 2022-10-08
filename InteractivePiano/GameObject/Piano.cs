@@ -25,6 +25,22 @@ namespace InteractivePiano.GameObject
             PianoKeyColor.White
         };
 
+        private string[] _keyNames =
+        {
+            "C",
+            "C#",
+            "D",
+            "D#",
+            "E",
+            "F",
+            "F#",
+            "G",
+            "G#",
+            "A",
+            "A#",
+            "B",
+        };
+
         private readonly PianoKey[] _keys;
         private readonly int _numberOfKeys;
 
@@ -94,6 +110,12 @@ namespace InteractivePiano.GameObject
             {
                 key.Draw();
             }
+        }
+
+        public string GetKeyName(int keyIndex)
+        {
+            if (keyIndex < 0 || keyIndex >= _numberOfKeys) throw new ArgumentOutOfRangeException(nameof(keyIndex));
+            return _keyNames[keyIndex % _keyNames.Length];
         }
 
         /// <summary>
