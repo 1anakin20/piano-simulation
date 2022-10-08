@@ -21,6 +21,8 @@ namespace InteractivePiano.Audio
         private readonly WaveOut _waveOut;
         public WaveFormat WaveFormat { get; }
         private readonly Piano _piano;
+        private static Object _instanceLock = new Object();
+        private static PianoAudio _instance;
 
         /// <summary>
         /// Construct a new <see cref="PianoAudio"/> object
@@ -28,7 +30,7 @@ namespace InteractivePiano.Audio
         /// <param name="piano">An instance of <see cref="PianoSimulation.Piano"/></param>
         /// <param name="sampleRate">The audio sampling rate, recommended is 44100. It will be multiplied by 3,
         /// As a small sample rate will be too short to hear</param>
-        public PianoAudio(Piano piano, int sampleRate)
+        private PianoAudio(Piano piano, int sampleRate)
         {
             if (piano == null) throw new ArgumentNullException(nameof(piano));
             if (sampleRate < 0) throw new ArgumentOutOfRangeException(nameof(sampleRate));
@@ -38,6 +40,25 @@ namespace InteractivePiano.Audio
             _waveOut.Init(this);
             _piano = piano;
             _waveOut.Play();
+        }
+
+        /// <summary>
+        /// Gets the instance of the <see cref="PianoAudio"/> object
+        /// </summary>
+        /// <param name="piano">Piano instance that will be played</param>
+        /// <param name="sampleRate">Sample rate of the piano</param>
+        /// <returns><see cref="PianoAudio"/> instance</returns>
+        public static PianoAudio GetInstance(Piano piano, int sampleRate)
+        {
+            if (_instance == null)
+            {
+                lock (_instanceLock)
+                {
+                    _instance ??= new PianoAudio(piano, sampleRate);
+                }
+            }
+
+            return _instance;
         }
 
         /// <summary>

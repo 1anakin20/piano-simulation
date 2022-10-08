@@ -49,7 +49,7 @@ namespace InteractivePiano.Game
         private void InitialisePiano(int keys, double startingFrequency)
         {
             var piano = new Piano(keys, SampleRate, startingFrequency: startingFrequency);
-            _audio = new PianoAudio(piano, SampleRate);
+            _audio = PianoAudio.GetInstance(piano, SampleRate);
             var blackKeyTexture = Content.Load<Texture2D>("black_key");
             var whiteKeyTexture = Content.Load<Texture2D>("white_key");
             _virtualPiano = new GameObject.Piano(_spriteBatch, whiteKeyTexture, blackKeyTexture, Vector2.Zero, keys, 0);
