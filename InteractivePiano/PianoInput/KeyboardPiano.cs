@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 namespace InteractivePiano.PianoInput
 {
     /// <summary>
-    /// Play the piano with a computer keyboard
+    /// Plays the piano with a computer keyboard
     /// </summary>
     public class KeyboardPiano : PianoInput
     {

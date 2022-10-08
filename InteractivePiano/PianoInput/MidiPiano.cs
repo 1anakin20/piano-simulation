@@ -2,19 +2,25 @@
 
 namespace InteractivePiano.PianoInput
 {
+    /// <summary>
+    /// Plays the piano by using a midi device
+    /// </summary>
     public class MidiPiano : PianoInput
     {
-        private readonly MidiIn _midiIn;
-
+        /// <summary>
+        /// Constructs a new <see cref="MidiPiano"/>
+        /// </summary>
+        /// <param name="deviceNumber">The number of the midi device index. Starts at zero</param>
         public MidiPiano(int deviceNumber)
         {
-            _midiIn = new MidiIn(deviceNumber);
-            _midiIn.MessageReceived += MidiInOnMessageReceived;
-            _midiIn.Start();
+            var midiIn = new MidiIn(deviceNumber);
+            midiIn.MessageReceived += MidiInOnMessageReceived;
+            midiIn.Start();
         }
 
         private void MidiInOnMessageReceived(object sender, MidiInMessageEventArgs e)
         {
+            // After receiving a midi message, send the appropriate note event to the piano
             if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOn)
             {
                 var noteOnEvent = (NoteEvent)e.MidiEvent;

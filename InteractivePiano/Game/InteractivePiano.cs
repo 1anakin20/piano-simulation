@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using InteractivePiano.Audio;
@@ -13,6 +14,9 @@ using PianoSimulation;
 
 namespace InteractivePiano.Game
 {
+    /// <summary>
+    /// Main game class. Handles the game logic
+    /// </summary>
     public class InteractivePiano : Microsoft.Xna.Framework.Game
     {
         private const string Keys = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
@@ -37,24 +41,12 @@ namespace InteractivePiano.Game
             _pressedKeys = new List<Keys>();
         }
 
-        private void OnPianoInputOnPianoInputKeyReleased(object sender, PianoInputEventArgs args)
-        {
-            foreach (var key in args.Keys)
-            {
-                _audio.RemoveNote(key);
-                _virtualPiano.ReleaseKey(key);
-            }
-        }
-
-        private void OnPianoInputOnPianoInputKeyPressed(object sender, PianoInputEventArgs args)
-        {
-            foreach (var key in args.Keys)
-            {
-                _audio.AddNote(key);
-                _virtualPiano.PressKey(key);
-            }
-        }
-
+        /// <summary>
+        /// Creates a new <see cref="Piano"/>
+        /// Warning: It is important to call this method before using the piano
+        /// </summary>
+        /// <param name="keys">Tbe number of keys of the piano</param>
+        /// <param name="startingFrequency">The frequency of the first keys of the piano</param>
         private void InitialisePiano(int keys, double startingFrequency)
         {
             var piano = new Piano(keys, SampleRate, startingFrequency: startingFrequency);
@@ -63,6 +55,8 @@ namespace InteractivePiano.Game
             var whiteKeyTexture = Content.Load<Texture2D>("white_key");
             _virtualPiano = new GameObject.Piano(_spriteBatch, whiteKeyTexture, blackKeyTexture, Vector2.Zero, keys, 0);
         }
+
+        #region game logic
 
         protected override void Initialize()
         {
@@ -112,6 +106,7 @@ namespace InteractivePiano.Game
                 _spriteBatch.Begin();
                 _virtualPiano.DrawKeys();
 
+                // Shows the current note being played
                 var pressedKeysBuilder = new StringBuilder();
                 foreach (var key in _pressedKeys)
                 {
@@ -125,6 +120,14 @@ namespace InteractivePiano.Game
             base.Draw(gameTime);
         }
 
+        #endregion
+
+
+        #region menu
+
+        /// <summary>
+        /// Shows the menu to select the playing mode. Computer keyboard <seealso cref="KeyboardPiano"/> or midi <seealso cref="MidiPiano"/>
+        /// </summary>
         private void DrawMenu()
         {
             var grid = new Grid
@@ -172,22 +175,9 @@ namespace InteractivePiano.Game
             _desktop.Root = grid;
         }
 
-        private void OnKeyboardKeysReleased(object sender, KeysEventArgs args)
-        {
-            foreach (var key in args.Keys)
-            {
-                _pressedKeys.Remove(key);
-            }
-        }
-
-        private void OnKeyboardKeysPressed(object sender, KeysEventArgs args)
-        {
-            foreach (var key in args.Keys)
-            {
-                _pressedKeys.Add(key);
-            }
-        }
-
+        /// <summary>
+        /// Shows the menu to select the midi input
+        /// </summary>
         private void ShowMidiMenu()
         {
             var midiDevices = MidiUtils.ListDevicesNames();
@@ -245,5 +235,45 @@ namespace InteractivePiano.Game
 
             _desktop.Root = stack;
         }
+
+        #endregion
+
+        #region event delegates
+
+        private void OnKeyboardKeysReleased(object sender, KeysEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _pressedKeys.Remove(key);
+            }
+        }
+
+        private void OnKeyboardKeysPressed(object sender, KeysEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _pressedKeys.Add(key);
+            }
+        }
+
+        private void OnPianoInputOnPianoInputKeyReleased(object sender, PianoInputEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _audio.RemoveNote(key);
+                _virtualPiano.ReleaseKey(key);
+            }
+        }
+
+        private void OnPianoInputOnPianoInputKeyPressed(object sender, PianoInputEventArgs args)
+        {
+            foreach (var key in args.Keys)
+            {
+                _audio.AddNote(key);
+                _virtualPiano.PressKey(key);
+            }
+        }
+
+        #endregion
     }
 }
