@@ -97,7 +97,7 @@ namespace InteractivePiano.GameObject
         /// <param name="startingKey">Where to start the pattern of the keys. <see cref="_keyColorPattern"/> and input the index of the start of the pattern</param>
         public Piano(SpriteBatch spriteBatch, Texture2D whiteKeyTexture, Texture2D blackKeyTexture,
             Vector2 startingPosition, int numberKeys, int startingKey) : this(spriteBatch, whiteKeyTexture,
-            blackKeyTexture, startingPosition, numberKeys, startingKey, Color.Red)
+            blackKeyTexture, startingPosition, numberKeys, startingKey, Color.Gray)
         {
         }
 

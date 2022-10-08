@@ -10,11 +10,13 @@ namespace InteractivePiano.PianoInput
     /// </summary>
     public class KeyboardPiano : PianoInput
     {
-        private string _keys;
+        private readonly string _keys;
+        private readonly KeyboardConverter _keyboardConverter;
 
         public KeyboardPiano(string keys, KeyboardKeysEvents keyboardKeysEvents)
         {
             _keys = keys;
+            _keyboardConverter = new KeyboardConverter(keys);
             keyboardKeysEvents.KeyboardKeysPressed += OnKeyboardKeysPressed;
             keyboardKeysEvents.KeyboardKeysReleased += OnKeyboardKeysReleased;
         }
@@ -40,18 +42,35 @@ namespace InteractivePiano.PianoInput
         {
             if (inputKeys == null) throw new ArgumentNullException(nameof(inputKeys));
             var numberOfKeys = inputKeys.Count;
-            var keys = new int[numberOfKeys];
+            var keys = new int?[numberOfKeys];
+            int validKeysCounter = 0;
             for (var i = 0; i < numberOfKeys; i++)
             {
                 var key = inputKeys[i];
-                var keyIndex = _keys.IndexOf(char.ToLower((char)key));
-                if (keyIndex != -1)
+                var charKey = _keyboardConverter.KeyToChar(key);
+                if (charKey != null)
                 {
-                    keys[i] = keyIndex;
+                    var keyIndex = _keys.IndexOf((char)charKey!);
+                    if (keyIndex != -1)
+                    {
+                        keys[i] = keyIndex;
+                        ++validKeysCounter;
+                    }
                 }
             }
 
-            return keys;
+            var validKeys = new int[validKeysCounter];
+            var validKeysIndex = 0;
+            foreach (var key in keys)
+            {
+                if (key != null)
+                {
+                    validKeys[validKeysIndex] = (int)key!;
+                    ++validKeysIndex;
+                }
+            }
+
+            return validKeys;
         }
     }
 }
